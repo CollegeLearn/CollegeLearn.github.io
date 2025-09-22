@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Data Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fef9e6; /* Light yellow background */
+        }
+    </style>
+</head>
+<body class="bg-yellow-50 p-8">
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">University Data Viewer</h1>
+            <p class="text-gray-600">
+                Search and filter university and degree information.
+            </p>
+        </header>
+
+        <!-- Search and Filter Section -->
+        <div class="flex flex-col md:flex-row items-center justify-between mb-6 space-y-4 md:space-y-0 md:space-x-4">
+            <input type="text" id="searchInput" placeholder="Search by university, degree, or eligibility..."
+                   class="w-full md:w-1/2 p-3 text-sm text-gray-700 placeholder-gray-400 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
+
+            <div class="flex flex-col md:flex-row w-full md:w-1/2 space-y-4 md:space-y-0 md:space-x-4">
+                <select id="cityFilter" class="w-full p-3 text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
+                    <option value="">All Cities</option>
+                </select>
+
+                <select id="countryFilter" class="w-full p-3 text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
+                    <option value="">All Countries</option>
+                </select>
+                
+                <select id="degreeLevelFilter" class="w-full p-3 text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
+                    <option value="">All Degree Levels</option>
+                </select>
+
+                <select id="degreeFilter" class="w-full p-3 text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
+                    <option value="">All Degrees</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Data Container -->
+        <div id="dataContainer" class="space-y-4">
+            <!-- Data will be populated here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- JavaScript for CSV Parsing and Filtering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        // Sample CSV data string for demonstration.
+        // It now includes UniversityLink and DegreeLink fields.
+        const csvDataString = `University,City,Country,DegreeLevel,Degree,Fees,Eligibility,Tags,UniversityLink,DegreeLink
+"University of Cambridge","Cambridge","UK","Undergraduate","Computer Science","£23,000","A Levels: A*AA","STEM,Technology","https://www.cam.ac.uk","https://www.undergraduate.study.cam.ac.uk/courses/computer-science"
+"Stanford University","Stanford","USA","Postgraduate","Electrical Engineering","£55,000","SAT: 1500+","STEM,Engineering","https://www.stanford.edu","https://ee.stanford.edu/"
+"University of Oxford","Oxford","UK","Undergraduate","Physics","£25,000","A Levels: A*A*A","STEM,Science","https://www.ox.ac.uk","https://www.ox.ac.uk/admissions/undergraduate/courses/physics"
+"MIT","Cambridge","USA","Postgraduate","Mechanical Engineering","£58,000","SAT: 1550+","STEM,Engineering","https://web.mit.edu","https://meche.mit.edu/"
+"Sorbonne University","Paris","France","Undergraduate","History","€10,000","Baccalaureate","Humanities,Arts","https://sorbonne-universite.fr/en","https://lettres.sorbonne-universite.fr/en/training/our-courses/licences/licence-history"
+"ETH Zurich","Zurich","Switzerland","Postgraduate","Robotics","CHF 1,500","High School Diploma","STEM,Technology","https://ethz.ch/en.html","https://ethz.ch/en/studies/master/degree-programmes/robotics.html"
+"University of Toronto","Toronto","Canada","Undergraduate","Commerce","CAD 60,000","High School GPA","Business","https://www.utoronto.ca","https://www.rotmancommerce.utoronto.ca/"
+"University of Tokyo","Tokyo","Japan","Postgraduate","Law","¥500,000","Entrance Exam","Law","https://www.u-tokyo.ac.jp/en","https://www.j.u-tokyo.ac.jp/en/admissions/"
+"University of Sydney","Sydney","Australia","Undergraduate","Medicine","AUD 50,000","High School: 99.95 ATAR","STEM,Health","https://www.sydney.edu.au","https://www.sydney.edu.au/medicine"
+"TU Munich","Munich","Germany","Undergraduate","Aerospace Engineering","€1,000","High School: 1.0 GPA","STEM,Engineering","https://www.tum.de/en","https://www.mw.tum.de/en/studies/aerospace-engineering-b-sc/"
+"National University of Singapore","Singapore","Singapore","Undergraduate","Business","SGD 40,000","High School","Business","https://www.nus.edu.sg","https://bba.nus.edu.sg/"
+"Peking University","Beijing","China","Undergraduate","Mathematics","¥30,000","Gaokao Exam","STEM,Science","https://www.pku.edu.cn/","https://math.pku.edu.cn/"
+"University of Oxford","Oxford","UK","Undergraduate","History","£22,000","A Levels: AAA","Humanities","https://www.ox.ac.uk","https://www.ox.ac.uk/admissions/undergraduate/courses/history"
+"University of Cambridge","Cambridge","UK","Postgraduate","Mathematics","£24,000","A Levels: A*A*A","STEM","https://www.cam.ac.uk","https://www.maths.cam.ac.uk/undergrad/"`;
+
+        let data = [];
+        let filteredData = [];
+
+        // Fetch, parse, and initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            Papa.parse(csvDataString, {
+                header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    data = results.data;
+                    populateFilters();
+                    applyFilters();
+                },
+                error: (err) => {
+                    console.error("Error parsing CSV:", err);
+                    document.getElementById('dataContainer').innerHTML = `<div class="bg-gray-50 p-4 text-center text-red-500 rounded-lg">Error loading data.</div>`;
+                }
+            });
+        });
+
+        function populateFilters() {
+            const cityFilter = document.getElementById('cityFilter');
+            const countryFilter = document.getElementById('countryFilter');
+            const degreeLevelFilter = document.getElementById('degreeLevelFilter');
+            const degreeFilter = document.getElementById('degreeFilter');
+
+            const cities = [...new Set(data.map(item => item.City).filter(Boolean))].sort();
+            const countries = [...new Set(data.map(item => item.Country).filter(Boolean))].sort();
+            const degreeLevels = [...new Set(data.map(item => item.DegreeLevel).filter(Boolean))].sort();
+            const degrees = [...new Set(data.map(item => item.Degree).filter(Boolean))].sort();
+
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                cityFilter.appendChild(option);
+            });
+
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                countryFilter.appendChild(option);
+            });
+
+            degreeLevels.forEach(level => {
+                const option = document.createElement('option');
+                option.value = level;
+                option.textContent = level;
+                degreeLevelFilter.appendChild(option);
+            });
+            
+            degrees.forEach(degree => {
+                const option = document.createElement('option');
+                option.value = degree;
+                option.textContent = degree;
+                degreeFilter.appendChild(option);
+            });
+        }
+
+        function applyFilters() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const cityFilterValue = document.getElementById('cityFilter').value;
+            const countryFilterValue = document.getElementById('countryFilter').value;
+            const degreeLevelFilterValue = document.getElementById('degreeLevelFilter').value;
+            const degreeFilterValue = document.getElementById('degreeFilter').value;
+
+            filteredData = data.filter(item => {
+                const searchMatch = Object.values(item).some(value =>
+                    value && String(value).toLowerCase().includes(searchInput)
+                );
+
+                const cityMatch = cityFilterValue === "" || item.City === cityFilterValue;
+                const countryMatch = countryFilterValue === "" || item.Country === countryFilterValue;
+                const degreeLevelMatch = degreeLevelFilterValue === "" || item.DegreeLevel === degreeLevelFilterValue;
+                const degreeMatch = degreeFilterValue === "" || item.Degree === degreeFilterValue;
+
+                return searchMatch && cityMatch && countryMatch && degreeLevelMatch && degreeMatch;
+            });
+
+            renderTable();
+        }
+        
+        // This function groups the flat data by university for the hierarchical view
+        function groupDataByUniversity(data) {
+            const groupedData = {};
+            data.forEach(item => {
+                const { University, City, Country, DegreeLevel, Degree, Fees, Eligibility, Tags, UniversityLink, DegreeLink } = item;
+                if (!groupedData[University]) {
+                    groupedData[University] = {
+                        City: City,
+                        Country: Country,
+                        UniversityLink: UniversityLink,
+                        Degrees: []
+                    };
+                }
+                groupedData[University].Degrees.push({
+                    DegreeLevel: DegreeLevel,
+                    Degree: Degree,
+                    Fees: Fees,
+                    Eligibility: Eligibility,
+                    Tags: Tags ? Tags.split(',') : [], // Split tags by comma
+                    DegreeLink: DegreeLink
+                });
+            });
+            return groupedData;
+        }
+
+        function renderTable() {
+            const dataContainer = document.getElementById('dataContainer');
+            dataContainer.innerHTML = ''; // Clear previous data
+            
+            const groupedData = groupDataByUniversity(filteredData);
+            const universities = Object.keys(groupedData).sort();
+
+            if (universities.length === 0) {
+                dataContainer.innerHTML = `<div class="bg-gray-50 p-4 text-center text-gray-400 rounded-lg">No results found.</div>`;
+                return;
+            }
+
+            universities.forEach(university => {
+                const uniData = groupedData[university];
+
+                const universityCard = document.createElement('div');
+                universityCard.classList.add('bg-white', 'border', 'border-green-400', 'rounded-lg', 'shadow-md', 'overflow-hidden');
+
+                // University Header with a link
+                const universityHeader = document.createElement('a');
+                universityHeader.href = uniData.UniversityLink;
+                universityHeader.target = '_blank';
+                universityHeader.classList.add('block', 'bg-green-100', 'text-green-900', 'px-6', 'py-4', 'font-semibold', 'text-lg', 'border-b', 'border-green-400', 'hover:bg-green-200', 'transition-colors', 'duration-200');
+                
+                // New layout for University Name and City/Country
+                universityHeader.innerHTML = `
+                    <div class="font-bold text-xl">${university}</div>
+                    <div class="text-sm font-normal opacity-80">${uniData.City}, ${uniData.Country}</div>
+                `;
+
+                universityCard.appendChild(universityHeader);
+
+                // Degrees Table inside the university card
+                const degreesTable = document.createElement('table');
+                degreesTable.classList.add('min-w-full', 'divide-y', 'divide-gray-200');
+                degreesTable.innerHTML = `
+                    <thead class="bg-green-50">
+                        <tr>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Degree Level</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Degree</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Fees</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Eligibility</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Tags</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                    </tbody>
+                `;
+
+                const degreesTableBody = degreesTable.querySelector('tbody');
+
+                uniData.Degrees.forEach(degree => {
+                    const degreeRow = document.createElement('tr');
+                    degreeRow.classList.add('hover:bg-yellow-100', 'transition-colors', 'duration-200');
+                    const tagsHtml = degree.Tags.map(tag =>
+                        `<span class="inline-block bg-green-200 text-green-800 text-xs font-semibold px-2 py-1 rounded-full mr-1 mt-1">${tag}</span>`
+                    ).join('');
+
+                    degreeRow.innerHTML = `
+                        <td class="py-2 px-6 text-sm font-medium text-gray-900 whitespace-nowrap">${degree.DegreeLevel}</td>
+                        <td class="py-2 px-6 text-sm font-medium text-gray-900 whitespace-nowrap">
+                            <a href="${degree.DegreeLink}" target="_blank" class="text-green-700 hover:underline">${degree.Degree}</a>
+                        </td>
+                        <td class="py-2 px-6 text-sm text-gray-500 whitespace-nowrap">${degree.Fees}</td>
+                        <td class="py-2 px-6 text-sm text-gray-500 whitespace-nowrap">${degree.Eligibility}</td>
+                        <td class="py-2 px-6 text-sm text-gray-500 whitespace-nowrap">
+                            <div class="flex flex-wrap">${tagsHtml}</div>
+                        </td>
+                    `;
+                    degreesTableBody.appendChild(degreeRow);
+                });
+
+                universityCard.appendChild(degreesTable);
+                dataContainer.appendChild(universityCard);
+            });
+        }
+
+        // Add event listeners
+        document.getElementById('searchInput').addEventListener('keyup', applyFilters);
+        document.getElementById('cityFilter').addEventListener('change', applyFilters);
+        document.getElementById('countryFilter').addEventListener('change', applyFilters);
+        document.getElementById('degreeLevelFilter').addEventListener('change', applyFilters);
+        document.getElementById('degreeFilter').addEventListener('change', applyFilters);
+    </script>
+</body>
+</html>
