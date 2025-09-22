@@ -1,18 +1,18 @@
-document.getElementById('csvFile').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                renderTable(results.data);
-            }
-        });
-    }
-});
+// document.getElementById('csvFile').addEventListener('change', function(e) {
+//     const file = e.target.files[0];
+//     if (file) {
+//         Papa.parse(file, {
+//             header: true,
+//             skipEmptyLines: true,
+//             complete: function(results) {
+//                 renderTable(results.data);
+//             }
+//         });
+//     }
+// });
 
 // Option B: If loading CSV from repo
-/*
+
 function loadCSVFromRepo() {
     Papa.parse('universities.csv', {
         download: true,
@@ -23,7 +23,6 @@ function loadCSVFromRepo() {
         }
     });
 }
-*/
 
 function renderTable(data) {
     const table = document.getElementById('dataTable');
