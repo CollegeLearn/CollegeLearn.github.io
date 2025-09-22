@@ -70,18 +70,36 @@
     <!-- JavaScript for CSV Parsing and Filtering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script>
-        // The CSV data is embedded directly as a string for a self-contained application.
+        // Sample CSV data string for demonstration.
+        // It now includes UniversityLink and DegreeLink fields.
         const csvDataString = `University,City,Country,DegreeLevel,Degree,Fees,Eligibility,Tags,UniversityLink,DegreeLink
-"Stanford University","Stanford","USA","Undergraduate","Computer Science","55000 USD","High school diploma, SAT/ACT scores","Tech, Research, Ivy League-equivalent","https://www.stanford.edu/","https://cs.stanford.edu/"
-"Massachusetts Institute of Technology (MIT)","Cambridge","USA","Undergraduate","Mechanical Engineering","53000 USD","High school diploma, SAT/ACT scores","Tech, Engineering, Robotics","https://www.mit.edu/","https://meche.mit.edu/"
-"University of Oxford","Oxford","UK","Undergraduate","Philosophy, Politics, and Economics (PPE)","28000 GBP","A-levels or equivalent, Interview, Written test","Humanities, Social Science, Prestigious","https://www.ox.ac.uk/","https://www.ox.ac.uk/admissions/undergraduate/courses/philosophy-politics-and-economics"
-"University of Cambridge","Cambridge","UK","Postgraduate","Master of Business Administration (MBA)","65000 GBP","Bachelor's degree, GMAT/GRE, Work experience","Business, Management, Finance","https://www.cam.ac.uk/","https://www.jbs.cam.ac.uk/programmes/mba/"
-"ETH Zurich","Zurich","Switzerland","Undergraduate","Electrical Engineering and Information Technology","1500 CHF","Swiss Matura or equivalent","Tech, Research, European","https://ethz.ch/","https://ee.ethz.ch/"
-"Technical University of Munich (TUM)","Munich","Germany","Undergraduate","Architecture","500 EUR","Abitur or equivalent, Portfolio","Engineering, Design, European","https://www.tum.de/","https://www.tum.de/en/studies/degree-programs/detail/architecture-bachelor-of-science-bsc"
-"University of Tokyo","Tokyo","Japan","Undergraduate","Civil Engineering","535800 JPY","EJU, High school diploma","Engineering, Research, Asian","https://www.u-tokyo.ac.jp/en/","https://www.civil.t.u-tokyo.ac.jp/en/"
-"Peking University","Beijing","China","Postgraduate","Master of Law","35000 CNY","Bachelor's degree, HSK (Chinese language proficiency)","Law, Humanities, Prestigious","https://english.pku.edu.cn/","https://en.law.pku.edu.cn/"
-"National University of Singapore (NUS)","Singapore","Singapore","Undergraduate","Medicine","45000 SGD","High school diploma, BMAT/MCAT, Interview","Medical, Health, Prestigious","https://nus.edu.sg/","https://nus.edu.sg/admissions/undergrad/courses/medicine"
-"University of Melbourne","Melbourne","Australia","Undergraduate","Arts","15000 AUD","High school diploma","Humanities, Arts, Australian","https://www.unimelb.edu.au/","https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-arts"`
+"University of Cambridge","Cambridge","UK","Undergraduate","Computer Science","£23,000","A Levels: A*AA","STEM,Technology","https://www.cam.ac.uk","https://www.undergraduate.study.cam.ac.uk/courses/computer-science"
+"Stanford University","Stanford","USA","Postgraduate","Electrical Engineering","£55,000","SAT: 1500+","STEM,Engineering","https://www.stanford.edu","https://ee.stanford.edu/"
+"University of Oxford","Oxford","UK","Undergraduate","Physics","£25,000","A Levels: A*A*A","STEM,Science","https://www.ox.ac.uk","https://www.ox.ac.uk/admissions/undergraduate/courses/physics"
+"MIT","Cambridge","USA","Postgraduate","Mechanical Engineering","£58,000","SAT: 1550+","STEM,Engineering","https://web.mit.edu","https://meche.mit.edu/"
+"Sorbonne University","Paris","France","Undergraduate","History","€10,000","Baccalaureate","Humanities,Arts","https://sorbonne-universite.fr/en","https://lettres.sorbonne-universite.fr/en/training/our-courses/licences/licence-history"
+"ETH Zurich","Zurich","Switzerland","Postgraduate","Robotics","CHF 1,500","High School Diploma","STEM,Technology","https://ethz.ch/en.html","https://ethz.ch/en/studies/master/degree-programmes/roboticscs.html"
+"University of Toronto","Toronto","Canada","Undergraduate","Commerce","CAD 60,000","High School GPA","Business","https://www.utoronto.ca","https://www.rotmancommerce.utoronto.ca/"
+"University of Tokyo","Tokyo","Japan","Postgraduate","Law","¥500,000","Entrance Exam","Law","https://www.u-tokyo.ac.jp/en","https://www.j.u-tokyo.ac.jp/en/admissions/"
+"University of Sydney","Sydney","Australia","Undergraduate","Medicine","AUD 50,000","High School: 99.95 ATAR","STEM,Health","https://www.sydney.edu.au","https://www.sydney.edu.au/medicine"
+"TU Munich","Munich","Germany","Undergraduate","Aerospace Engineering","€1,000","High School: 1.0 GPA","STEM,Engineering","https://www.tum.de/en","https://www.mw.tum.de/en/studies/aerospace-engineering-b-sc/"
+"National University of Singapore","Singapore","Singapore","Undergraduate","Business","SGD 40,000","High School","Business","https://www.nus.edu.sg","https://bba.nus.edu.sg/"
+"Peking University","Beijing","China","Undergraduate","Mathematics","¥30,000","Gaokao Exam","STEM,Science","https://www.pku.edu.cn/","https://math.pku.edu.cn/"
+"University of Oxford","Oxford","UK","Undergraduate","History","£22,000","A Levels: AAA","Humanities","https://www.ox.ac.uk","https://www.ox.ac.uk/admissions/undergraduate/courses/history"
+"University of Cambridge","Cambridge","UK","Postgraduate","Mathematics","£24,000","A Levels: A*A*A","STEM","https://www.cam.ac.uk","https://www.maths.cam.ac.uk/undergrad/"
+"University of Auckland","Auckland","New Zealand","Undergraduate","Civil Engineering","NZD 35,000","High School: 80% GPA","STEM,Engineering","https://www.auckland.ac.nz","https://www.auckland.ac.nz/en/engineering/study-with-us/civil-and-environmental-engineering.html"
+"McGill University","Montreal","Canada","Postgraduate","Data Science","CAD 25,000","Bachelor's Degree","STEM,Technology","https://www.mcgill.ca","https://www.mcgill.ca/sci-com/students/graduate-studies/data-science-and-analytics-professional-program"
+"Trinity College Dublin","Dublin","Ireland","Undergraduate","Literature","€9,000","Leaving Cert","Humanities,Arts","https://www.tcd.ie","https://www.tcd.ie/english/undergraduate/literature-and-theatre-studies.php"
+"Seoul National University","Seoul","South Korea","Postgraduate","Computer Science","₩10,000,000","Bachelor's Degree, TOPIK level 6","STEM,Technology","https://en.snu.ac.kr","https://cse.snu.ac.kr/en/graduate-admissions"
+"University of Melbourne","Melbourne","Australia","Undergraduate","Law","AUD 45,000","High School: 99.00 ATAR","Law","https://law.unimelb.edu.au/study","https://law.unimelb.edu.au/study"
+"University of Cape Town","Cape Town","South Africa","Undergraduate","Commerce","ZAR 50,000","NSC Exam","Business","https://www.uct.ac.za","https://www.commerce.uct.ac.za/commerce/undergraduate"
+"University of Amsterdam","Amsterdam","Netherlands","Postgraduate","Economics","€2,000","Bachelor's Degree","Business,Social Science","https://www.uva.nl/en","https://www.uva.nl/en/programmes/masters/economics-and-business-economics/economics-and-business-economics.html"
+"Stockholm University","Stockholm","Sweden","Undergraduate","Psychology","SEK 150,000","High School Diploma","Social Science","https://www.su.se/english/","https://www.su.se/english/education/find-courses-programmes/psychology-bachelor-s-programme-1.39328"
+"University of Zurich","Zurich","Switzerland","Postgraduate","Medicine","CHF 1,500","Bachelor's Degree","STEM,Health","https://www.uzh.ch/en.html","https://www.med.uzh.ch/en/studies/medicine.html"
+"Kyoto University","Kyoto","Japan","Undergraduate","Physics","¥500,000","Entrance Exam","STEM,Science","https://www.kyoto-u.ac.jp/en","https://www.sci.kyoto-u.ac.jp/en/admissions-and-aid/undergraduate-admissions"
+"University of Helsinki","Helsinki","Finland","Postgraduate","Environmental Science","€15,000","Bachelor's Degree","STEM,Science","https://www.helsinki.fi/en","https://www.helsinki.fi/en/degrees/environmental-change-and-global-sustainability-master-s-programme"
+"National University of Singapore","Singapore","Singapore","Undergraduate","Engineering","SGD 45,000","High School","STEM,Engineering","https://www.nus.edu.sg","https://cde.nus.edu.sg/undergrad/undergraduate-degree-programmes/"
+"University of British Columbia","Vancouver","Canada","Undergraduate","Psychology","CAD 40,000","High School GPA","Social Science","https://www.ubc.ca","https://psych.ubc.ca/undergraduate"`;
 
         let data = [];
         let filteredData = [];
