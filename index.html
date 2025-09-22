@@ -218,15 +218,15 @@
 
                 // Degrees Table inside the university card
                 const degreesTable = document.createElement('table');
-                degreesTable.classList.add('min-w-full', 'divide-y', 'divide-gray-200');
+                degreesTable.classList.add('min-w-full', 'table-fixed', 'divide-y', 'divide-gray-200');
                 degreesTable.innerHTML = `
                     <thead class="bg-green-50">
                         <tr>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Degree Level</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Degree</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Fees</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Eligibility</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Tags</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Degree Level</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Degree</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Fees</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Eligibility</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Tags</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -243,13 +243,13 @@
                     ).join('');
 
                     degreeRow.innerHTML = `
-                        <td class="py-2 px-6 text-sm font-medium text-gray-900 whitespace-nowrap">${degree.DegreeLevel}</td>
-                        <td class="py-2 px-6 text-sm font-medium text-gray-900 whitespace-nowrap">
+                        <td class="p-3 text-sm font-medium text-gray-900 overflow-hidden text-ellipsis">${degree.DegreeLevel}</td>
+                        <td class="p-3 text-sm font-medium text-gray-900 overflow-hidden text-ellipsis">
                             <a href="${degree.DegreeLink}" target="_blank" class="text-green-700 hover:underline">${degree.Degree}</a>
                         </td>
-                        <td class="py-2 px-6 text-sm text-gray-500 whitespace-nowrap">${degree.Fees}</td>
-                        <td class="py-2 px-6 text-sm text-gray-500 whitespace-nowrap">${degree.Eligibility}</td>
-                        <td class="py-2 px-6 text-sm text-gray-500 whitespace-nowrap">
+                        <td class="p-3 text-sm text-gray-500 overflow-hidden text-ellipsis">${degree.Fees}</td>
+                        <td class="p-3 text-sm text-gray-500 overflow-hidden text-ellipsis">${degree.Eligibility}</td>
+                        <td class="p-3 text-sm text-gray-500 overflow-hidden text-ellipsis">
                             <div class="flex flex-wrap">${tagsHtml}</div>
                         </td>
                     `;
