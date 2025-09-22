@@ -26,7 +26,7 @@
 
         <!-- Search and Limit Section -->
         <div class="flex flex-col md:flex-row items-center justify-between mb-4 space-y-4 md:space-y-0 md:space-x-4">
-            <input type="text" id="searchInput" placeholder="Search by university, degree, or eligibility..."
+            <input type="text" id="searchInput" placeholder="Search by location, university or degree..."
                    class="w-full md:w-3/4 p-3 text-sm text-gray-700 placeholder-gray-400 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
             
             <div class="flex items-center w-full md:w-1/4 space-x-2">
@@ -205,7 +205,7 @@
         function groupDataByUniversity(data) {
             const groupedData = {};
             data.forEach(item => {
-                const { University, City, Country, DegreeLevel, Degree, Fees, Eligibility, Tags, UniversityLink, DegreeLink } = item;
+                const { University, City, Country, DegreeLevel, Degree, Fees, Tags, UniversityLink, DegreeLink } = item;
                 if (!groupedData[University]) {
                     groupedData[University] = {
                         City: City,
@@ -218,7 +218,6 @@
                     DegreeLevel: DegreeLevel,
                     Degree: Degree,
                     Fees: Fees,
-                    Eligibility: Eligibility,
                     Tags: Tags ? Tags.split(',') : [], // Split tags by comma
                     DegreeLink: DegreeLink
                 });
@@ -268,7 +267,6 @@
                             <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[15%]">Degree Level</th>
                             <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[20%]">Degree</th>
                             <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[15%]">Fees</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[25%]">Eligibility</th>
                             <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[25%]">Tags</th>
                         </tr>
                     </thead>
@@ -291,7 +289,6 @@
                             <a href="${degree.DegreeLink}" target="_blank" class="text-green-700 hover:underline">${degree.Degree}</a>
                         </td>
                         <td class="py-2 px-6 text-sm text-gray-500 overflow-hidden text-ellipsis">${degree.Fees}</td>
-                        <td class="py-2 px-6 text-sm text-gray-500 overflow-hidden text-ellipsis">${degree.Eligibility}</td>
                         <td class="py-2 px-6 text-sm text-gray-500 overflow-hidden text-ellipsis">
                             <div class="flex flex-wrap">${tagsHtml}</div>
                         </td>
