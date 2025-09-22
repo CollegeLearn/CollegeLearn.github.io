@@ -70,6 +70,19 @@
     <!-- JavaScript for CSV Parsing and Filtering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script>
+        // The CSV data is embedded directly as a string for a self-contained application.
+        const csvDataString = `University,City,Country,DegreeLevel,Degree,Fees,Eligibility,Tags,UniversityLink,DegreeLink
+"Stanford University","Stanford","USA","Undergraduate","Computer Science","55000 USD","High school diploma, SAT/ACT scores","Tech, Research, Ivy League-equivalent","https://www.stanford.edu/","https://cs.stanford.edu/"
+"Massachusetts Institute of Technology (MIT)","Cambridge","USA","Undergraduate","Mechanical Engineering","53000 USD","High school diploma, SAT/ACT scores","Tech, Engineering, Robotics","https://www.mit.edu/","https://meche.mit.edu/"
+"University of Oxford","Oxford","UK","Undergraduate","Philosophy, Politics, and Economics (PPE)","28000 GBP","A-levels or equivalent, Interview, Written test","Humanities, Social Science, Prestigious","https://www.ox.ac.uk/","https://www.ox.ac.uk/admissions/undergraduate/courses/philosophy-politics-and-economics"
+"University of Cambridge","Cambridge","UK","Postgraduate","Master of Business Administration (MBA)","65000 GBP","Bachelor's degree, GMAT/GRE, Work experience","Business, Management, Finance","https://www.cam.ac.uk/","https://www.jbs.cam.ac.uk/programmes/mba/"
+"ETH Zurich","Zurich","Switzerland","Undergraduate","Electrical Engineering and Information Technology","1500 CHF","Swiss Matura or equivalent","Tech, Research, European","https://ethz.ch/","https://ee.ethz.ch/"
+"Technical University of Munich (TUM)","Munich","Germany","Undergraduate","Architecture","500 EUR","Abitur or equivalent, Portfolio","Engineering, Design, European","https://www.tum.de/","https://www.tum.de/en/studies/degree-programs/detail/architecture-bachelor-of-science-bsc"
+"University of Tokyo","Tokyo","Japan","Undergraduate","Civil Engineering","535800 JPY","EJU, High school diploma","Engineering, Research, Asian","https://www.u-tokyo.ac.jp/en/","https://www.civil.t.u-tokyo.ac.jp/en/"
+"Peking University","Beijing","China","Postgraduate","Master of Law","35000 CNY","Bachelor's degree, HSK (Chinese language proficiency)","Law, Humanities, Prestigious","https://english.pku.edu.cn/","https://en.law.pku.edu.cn/"
+"National University of Singapore (NUS)","Singapore","Singapore","Undergraduate","Medicine","45000 SGD","High school diploma, BMAT/MCAT, Interview","Medical, Health, Prestigious","https://nus.edu.sg/","https://nus.edu.sg/admissions/undergrad/courses/medicine"
+"University of Melbourne","Melbourne","Australia","Undergraduate","Arts","15000 AUD","High school diploma","Humanities, Arts, Australian","https://www.unimelb.edu.au/","https://study.unimelb.edu.au/find/courses/undergraduate/bachelor-of-arts"`
+
         let data = [];
         let filteredData = [];
         let currentPage = 1;
@@ -77,8 +90,7 @@
 
         // Fetch, parse, and initialize the application
         document.addEventListener('DOMContentLoaded', () => {
-            Papa.parse('university_data.csv', {
-                download: true,
+            Papa.parse(csvDataString, {
                 header: true,
                 dynamicTyping: true,
                 skipEmptyLines: true,
