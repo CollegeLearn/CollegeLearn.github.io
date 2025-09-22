@@ -45,6 +45,13 @@
                 <select id="degreeFilter" class="w-full p-3 text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
                     <option value="">All Degrees</option>
                 </select>
+                
+                <select id="limitFilter" class="w-full p-3 text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
+                    <option value="10">Show 10</option>
+                    <option value="20">Show 20</option>
+                    <option value="50">Show 50</option>
+                    <option value="100">Show 100</option>
+                </select>
             </div>
         </div>
 
@@ -73,7 +80,20 @@
 "National University of Singapore","Singapore","Singapore","Undergraduate","Business","SGD 40,000","High School","Business","https://www.nus.edu.sg","https://bba.nus.edu.sg/"
 "Peking University","Beijing","China","Undergraduate","Mathematics","¥30,000","Gaokao Exam","STEM,Science","https://www.pku.edu.cn/","https://math.pku.edu.cn/"
 "University of Oxford","Oxford","UK","Undergraduate","History","£22,000","A Levels: AAA","Humanities","https://www.ox.ac.uk","https://www.ox.ac.uk/admissions/undergraduate/courses/history"
-"University of Cambridge","Cambridge","UK","Postgraduate","Mathematics","£24,000","A Levels: A*A*A","STEM","https://www.cam.ac.uk","https://www.maths.cam.ac.uk/undergrad/"`;
+"University of Cambridge","Cambridge","UK","Postgraduate","Mathematics","£24,000","A Levels: A*A*A","STEM","https://www.cam.ac.uk","https://www.maths.cam.ac.uk/undergrad/"
+"University of Auckland","Auckland","New Zealand","Undergraduate","Civil Engineering","NZD 35,000","High School: 80% GPA","STEM,Engineering","https://www.auckland.ac.nz","https://www.auckland.ac.nz/en/engineering/study-with-us/civil-and-environmental-engineering.html"
+"McGill University","Montreal","Canada","Postgraduate","Data Science","CAD 25,000","Bachelor's Degree","STEM,Technology","https://www.mcgill.ca","https://www.mcgill.ca/sci-com/students/graduate-studies/data-science-and-analytics-professional-program"
+"Trinity College Dublin","Dublin","Ireland","Undergraduate","Literature","€9,000","Leaving Cert","Humanities,Arts","https://www.tcd.ie","https://www.tcd.ie/english/undergraduate/literature-and-theatre-studies.php"
+"Seoul National University","Seoul","South Korea","Postgraduate","Computer Science","₩10,000,000","Bachelor's Degree, TOPIK level 6","STEM,Technology","https://en.snu.ac.kr","https://cse.snu.ac.kr/en/graduate-admissions"
+"University of Melbourne","Melbourne","Australia","Undergraduate","Law","AUD 45,000","High School: 99.00 ATAR","Law","https://www.unimelb.edu.au","https://law.unimelb.edu.au/study"
+"University of Cape Town","Cape Town","South Africa","Undergraduate","Commerce","ZAR 50,000","NSC Exam","Business","https://www.uct.ac.za","https://www.commerce.uct.ac.za/commerce/undergraduate"
+"University of Amsterdam","Amsterdam","Netherlands","Postgraduate","Economics","€2,000","Bachelor's Degree","Business,Social Science","https://www.uva.nl/en","https://www.uva.nl/en/programmes/masters/economics-and-business-economics/economics-and-business-economics.html"
+"Stockholm University","Stockholm","Sweden","Undergraduate","Psychology","SEK 150,000","High School Diploma","Social Science","https://www.su.se/english/","https://www.su.se/english/education/find-courses-programmes/psychology-bachelor-s-programme-1.39328"
+"University of Zurich","Zurich","Switzerland","Postgraduate","Medicine","CHF 1,500","Bachelor's Degree","STEM,Health","https://www.uzh.ch/en.html","https://www.med.uzh.ch/en/studies/medicine.html"
+"Kyoto University","Kyoto","Japan","Undergraduate","Physics","¥500,000","Entrance Exam","STEM,Science","https://www.kyoto-u.ac.jp/en","https://www.sci.kyoto-u.ac.jp/en/admissions-and-aid/undergraduate-admissions"
+"University of Helsinki","Helsinki","Finland","Postgraduate","Environmental Science","€15,000","Bachelor's Degree","STEM,Science","https://www.helsinki.fi/en","https://www.helsinki.fi/en/degrees/environmental-change-and-global-sustainability-master-s-programme"
+"National University of Singapore","Singapore","Singapore","Undergraduate","Engineering","SGD 45,000","High School","STEM,Engineering","https://www.nus.edu.sg","https://cde.nus.edu.sg/undergrad/undergraduate-degree-programmes/"
+"University of British Columbia","Vancouver","Canada","Undergraduate","Psychology","CAD 40,000","High School GPA","Social Science","https://www.ubc.ca","https://psych.ubc.ca/undergraduate"`;
 
         let data = [];
         let filteredData = [];
@@ -142,8 +162,9 @@
             const countryFilterValue = document.getElementById('countryFilter').value;
             const degreeLevelFilterValue = document.getElementById('degreeLevelFilter').value;
             const degreeFilterValue = document.getElementById('degreeFilter').value;
+            const limit = parseInt(document.getElementById('limitFilter').value, 10);
 
-            filteredData = data.filter(item => {
+            let tempFilteredData = data.filter(item => {
                 const searchMatch = Object.values(item).some(value =>
                     value && String(value).toLowerCase().includes(searchInput)
                 );
@@ -155,6 +176,8 @@
 
                 return searchMatch && cityMatch && countryMatch && degreeLevelMatch && degreeMatch;
             });
+            
+            filteredData = tempFilteredData.slice(0, limit);
 
             renderTable();
         }
@@ -200,7 +223,7 @@
                 const uniData = groupedData[university];
 
                 const universityCard = document.createElement('div');
-                universityCard.classList.add('bg-white', 'border', 'border-green-400', 'rounded-lg', 'shadow-md', 'overflow-hidden');
+                universityCard.classList.add('bg-white', 'border', 'border-green-400', 'rounded-lg', 'shadow-md', 'overflow-hidden', 'mb-4');
 
                 // University Header with a link
                 const universityHeader = document.createElement('a');
@@ -222,11 +245,11 @@
                 degreesTable.innerHTML = `
                     <thead class="bg-green-50">
                         <tr>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Degree Level</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Degree</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Fees</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Eligibility</th>
-                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-1/5">Tags</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[15%]">Degree Level</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[20%]">Degree</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[15%]">Fees</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[25%]">Eligibility</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-green-500 uppercase tracking-wider w-[25%]">Tags</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -243,13 +266,13 @@
                     ).join('');
 
                     degreeRow.innerHTML = `
-                        <td class="p-3 text-sm font-medium text-gray-900 overflow-hidden text-ellipsis">${degree.DegreeLevel}</td>
-                        <td class="p-3 text-sm font-medium text-gray-900 overflow-hidden text-ellipsis">
+                        <td class="py-2 px-6 text-sm font-medium text-gray-900 overflow-hidden text-ellipsis">${degree.DegreeLevel}</td>
+                        <td class="py-2 px-6 text-sm font-medium text-gray-900 overflow-hidden text-ellipsis">
                             <a href="${degree.DegreeLink}" target="_blank" class="text-green-700 hover:underline">${degree.Degree}</a>
                         </td>
-                        <td class="p-3 text-sm text-gray-500 overflow-hidden text-ellipsis">${degree.Fees}</td>
-                        <td class="p-3 text-sm text-gray-500 overflow-hidden text-ellipsis">${degree.Eligibility}</td>
-                        <td class="p-3 text-sm text-gray-500 overflow-hidden text-ellipsis">
+                        <td class="py-2 px-6 text-sm text-gray-500 overflow-hidden text-ellipsis">${degree.Fees}</td>
+                        <td class="py-2 px-6 text-sm text-gray-500 overflow-hidden text-ellipsis">${degree.Eligibility}</td>
+                        <td class="py-2 px-6 text-sm text-gray-500 overflow-hidden text-ellipsis">
                             <div class="flex flex-wrap">${tagsHtml}</div>
                         </td>
                     `;
@@ -267,6 +290,7 @@
         document.getElementById('countryFilter').addEventListener('change', applyFilters);
         document.getElementById('degreeLevelFilter').addEventListener('change', applyFilters);
         document.getElementById('degreeFilter').addEventListener('change', applyFilters);
+        document.getElementById('limitFilter').addEventListener('change', applyFilters);
     </script>
 </body>
 </html>
