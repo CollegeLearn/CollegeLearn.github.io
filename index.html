@@ -86,8 +86,9 @@
     <script>
         // Sample CSV data string for demonstration.
         // It now includes UniversityLink and DegreeLink fields.
-        
-        const csvDataString = fetch(`https://github.com/CollegeLearn/CollegeLearn.github.io/blob/main/university_data.csv`);
+
+        const csvFilePath = university_data.csv;
+        const csvDataString = fetch(csvFilePath);
 
         let data = [];
         let filteredData = [];
