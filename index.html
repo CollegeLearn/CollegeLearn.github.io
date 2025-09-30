@@ -98,7 +98,8 @@
 
         // Fetch, parse, and initialize the application
         document.addEventListener('DOMContentLoaded', () => {
-            Papa.parse(csvDataString, {
+            Papa.parse(csvFilePath, {
+                download: true,
                 header: true,
                 dynamicTyping: true,
                 skipEmptyLines: true,
