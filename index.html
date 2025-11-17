@@ -193,7 +193,7 @@
 
             // LIVE FETCH: If supabase client is initialized
             const { data, error } = await supabase
-                .from('degrees') // <-- REPLACE 'degrees' WITH YOUR TABLE NAME
+                .from('Degrees') // <-- REPLACE 'degrees' WITH YOUR TABLE NAME
                 .select('*'); 
 
             if (error) {
@@ -440,5 +440,6 @@
     </script>
 </body>
 </html>
+
 
 
