@@ -1,27 +1,387 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F1QKGNWSE"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Degree Finder</title>
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Load Lucide icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- 3. Load Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply the Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="container mx-auto p-4 md:p-8">
         
-          gtag('config', 'G-3F1QKGNWSE');
-        </script>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <!-- Disclaimer -->
-        <span class="font-bold">Disclaimer:</span> This information is for general guidance only. All data is compiled from publicly available sources and is not an endorsement or official representation of any specific institution.
+        <!-- Header Section -->
+        <header class="bg-white p-8 rounded-lg shadow-lg mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                University Degree Finder
+            </h1>
+            <p class="text-gray-600 text-lg">
+                Search our database for degrees, universities, and more.
+            </p>
+        </header>
 
-        <!-- App -->
-        <iframe src="https://www.appsheet.com/start/330e46a4-66bd-44e8-88c7-e3189af03e8c" style="height:100vh;width:90vw;border:none"/>
-    </body>
-    </html>
+        <!-- Search and Filter Section -->
+        <div class="mb-8 p-6 bg-white rounded-lg shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search Bar -->
+                <div class="relative md:col-span-4">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <!-- Search Icon -->
+                        <i data-lucide="search" class="text-gray-400 w-5 h-5"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search by degree, university, or tags (e.g., 'Engineering', 'MIT', 'AI')"
+                        class="w-full p-4 pl-12 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                    >
+                </div>
+                
+                <!-- Filter Dropdowns -->
+                <div>
+                    <label for="universityFilter" class="block text-sm font-medium text-gray-700 mb-1">University</label>
+                    <select id="universityFilter" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Universities</option>
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="countryFilter" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                    <select id="countryFilter" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Countries</option>
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="levelFilter" class="block text-sm font-medium text-gray-700 mb-1">Degree Level</label>
+                    <select id="levelFilter" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Levels</option>
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Results Grid -->
+        <main id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Degree cards will be dynamically inserted here by JavaScript -->
+        </main>
+
+    </div>
+
+    <!-- SCRIPT: Changed to type="module" to support Supabase import -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // --- Supabase Credentials ---
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+        
+        let supabase = null;
+
+        // Initialize Supabase only if the placeholders have been replaced.
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY_HERE') {
+            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } else {
+            console.warn("Supabase credentials are not set. Loading mock data.");
+        }
+
+        // --- MOCK DATABASE (Fallback Data) ---
+        const MOCK_DEGREE_DATA = [
+            {
+                University: "MIT",
+                City: "Cambridge",
+                Country: "USA",
+                DegreeLevel: "Master's",
+                Degree: "M.S. in Computer Science",
+                Tags: ["AI", "Machine Learning", "Software", "Robotics"],
+                UniversityLink: "https://www.mit.edu/",
+                DegreeLink: "https://www.eecs.mit.edu/"
+            },
+            {
+                University: "University of Oxford",
+                City: "Oxford",
+                Country: "UK",
+                DegreeLevel: "Bachelor's",
+                Degree: "B.A. in Philosophy, Politics and Economics (PPE)",
+                Tags: ["Economics", "Politics", "Humanities", "Philosophy"],
+                UniversityLink: "https://www.ox.ac.uk/",
+                DegreeLink: "https://www.ox.ac.uk/admissions/undergraduate/courses/course-listing/philosophy-politics-and-economics"
+            },
+            {
+                University: "ETH Zurich",
+                City: "Zurich",
+                Country: "Switzerland",
+                DegreeLevel: "PhD",
+                Degree: "Ph.D. in Computational Biology",
+                Tags: ["Data Science", "Biology", "Genetics"],
+                UniversityLink: "https://ethz.ch/en.html",
+                DegreeLink: "https://ethz.ch/en/studies/master/degree-programmes/sci-nat-math/data-science.html"
+            }
+        ];
+
+        // --- GLOBAL DATA STORE ---
+        // This will hold our data once fetched (or mocked)
+        let allDegreeData = [];
+
+        // --- DOM Elements ---
+        const searchInput = document.getElementById('searchInput');
+        const universityFilter = document.getElementById('universityFilter');
+        const countryFilter = document.getElementById('countryFilter');
+        const levelFilter = document.getElementById('levelFilter');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        // --- ASYNC DATA FETCHING ---
+        /**
+         * Fetches data from the Supabase database or falls back to mock data.
+         */
+        async function loadDegreeData() {
+            resultsContainer.innerHTML = `<p class="text-gray-500 col-span-full text-center text-lg">Loading data...</p>`;
+
+            if (!supabase) {
+                // FALLBACK: Use mock data if credentials are not configured
+                resultsContainer.innerHTML = `
+                    <div class="col-span-full text-center">
+                        <p class="text-red-600 text-lg font-semibold mb-2">
+                            Configuration Warning
+                        </p>
+                        <p class="text-gray-700 text-md">
+                            Using mock data. Please replace **'YOUR_SUPABASE_URL_HERE'** and **'YOUR_SUPABASE_ANON_KEY_HERE'** in the script to load live data.
+                        </p>
+                    </div>
+                `;
+                return MOCK_DEGREE_DATA;
+            }
+
+            // LIVE FETCH: If supabase client is initialized
+            const { data, error } = await supabase
+                .from('degrees') // <-- REPLACE 'degrees' WITH YOUR TABLE NAME
+                .select('*'); 
+
+            if (error) {
+                console.error('Error fetching data:', error);
+                resultsContainer.innerHTML = `<p class="text-red-500 col-span-full text-center text-lg">Error loading data. Check console for details.</p>`;
+                return []; 
+            }
+
+            return data;
+        }
 
 
+        // --- CORE FUNCTIONS ---
+
+        /**
+         * Populates filter dropdowns with unique values from the data.
+         * @param {Array} data - The fetched data from Supabase.
+         */
+        function populateFilters(data) {
+            const universities = new Set();
+            const countries = new Set();
+            const levels = new Set();
+
+            data.forEach(item => {
+                if (item.University) universities.add(item.University);
+                if (item.Country) countries.add(item.Country);
+                if (item.DegreeLevel) levels.add(item.DegreeLevel);
+            });
+
+            // Reset dropdowns before populating
+            universityFilter.innerHTML = '<option value="all">All Universities</option>';
+            countryFilter.innerHTML = '<option value="all">All Countries</option>';
+            levelFilter.innerHTML = '<option value="all">All Levels</option>';
 
 
+            // Populate University Filter
+            [...universities].sort().forEach(uni => {
+                const option = document.createElement('option');
+                option.value = uni;
+                option.textContent = uni;
+                universityFilter.appendChild(option);
+            });
+
+            // Populate Country Filter
+            [...countries].sort().forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                countryFilter.appendChild(option);
+            });
+
+            // Populate Level Filter
+            [...levels].sort().forEach(level => {
+                const option = document.createElement('option');
+                option.value = level;
+                option.textContent = level;
+                levelFilter.appendChild(option);
+            });
+        }
+
+        /**
+         * Renders the degree cards to the page.
+         * @param {Array} data - The array of degree objects to render.
+         */
+        function renderCards(data) {
+            resultsContainer.innerHTML = ''; // Clear previous results
+
+            // Check if there are no results from filtering
+            if (data.length === 0 && allDegreeData.length > 0) {
+                 resultsContainer.innerHTML = `
+                    <p class="text-gray-500 col-span-full text-center text-lg">
+                        No results found matching your current filters and search term.
+                    </p>
+                `;
+                return;
+            }
+
+            // If allDegreeData is empty, the loadDegreeData already showed an error/warning message.
+            if (data.length === 0) {
+                return;
+            }
+
+            data.forEach(item => {
+                // Create the HTML for the tags
+                let tagsHtml = '';
+                if (Array.isArray(item.Tags)) {
+                    tagsHtml = item.Tags.map(tag => `
+                        <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                            #${tag}
+                        </span>
+                    `).join('');
+                }
+
+                // Create the card element
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl";
+                card.innerHTML = `
+                    <!-- Main Content -->
+                    <div class="p-6 flex-grow">
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full mb-3">
+                            ${item.DegreeLevel || 'N/A'}
+                        </span>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                            ${item.Degree || 'No Degree Title'}
+                        </h2>
+                        <p class="text-md font-medium text-gray-700 mb-1">
+                            ${item.University || 'No University'}
+                        </p>
+                        <p class="text-sm text-gray-500 flex items-center mb-4">
+                            <i data-lucide="map-pin" class="w-4 h-4 mr-1.5 flex-shrink-0"></i>
+                            ${item.City || 'N/A'}, ${item.Country || 'N/A'}
+                        </p>
+                        
+                        <!-- Tags -->
+                        <div>
+                            ${tagsHtml}
+                        </div>
+                    </div>
+
+                    <!-- Footer with Links -->
+                    <div class="px-6 pb-6 pt-4 bg-gray-50 border-t border-gray-100 mt-auto">
+                        <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
+                            <a 
+                                href="${item.UniversityLink || '#'}" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm ${!item.UniversityLink ? 'opacity-50 cursor-not-allowed' : ''}"
+                            >
+                                <i data-lucide="school-2" class="w-4 h-4 mr-2"></i>
+                                View University
+                            </a>
+                            <a 
+                                href="${item.DegreeLink || '#'}" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gray-700 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors shadow-sm ${!item.DegreeLink ? 'opacity-50 cursor-not-allowed' : ''}"
+                            >
+                                <i data-lucide="book-open-text" class="w-4 h-4 mr-2"></i>
+                                View Degree
+                            </a>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            });
+
+            // IMPORTANT: Re-initialize icons after rendering new HTML
+            lucide.createIcons();
+        }
+
+        /**
+         * Filters the data based on the search input and dropdown filters.
+         */
+        function filterData() {
+            // 1. Get all filter values
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedUniversity = universityFilter.value;
+            const selectedCountry = countryFilter.value;
+            const selectedLevel = levelFilter.value;
+
+            // 2. Filter the data (now using 'allDegreeData')
+            const filteredData = allDegreeData.filter(item => {
+                // Check dropdown filters
+                const universityMatch = (selectedUniversity === 'all') || (item.University === selectedUniversity);
+                const countryMatch = (selectedCountry === 'all') || (item.Country === selectedCountry);
+                const levelMatch = (selectedLevel === 'all') || (item.DegreeLevel === selectedLevel);
+
+                // Check search term
+                const tagsMatch = Array.isArray(item.Tags) && item.Tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                const searchMatch = (
+                    (item.Degree && item.Degree.toLowerCase().includes(searchTerm)) ||
+                    (item.University && item.University.toLowerCase().includes(searchTerm)) ||
+                    (item.City && item.City.toLowerCase().includes(searchTerm)) ||
+                    tagsMatch
+                );
+                
+                // Return true only if all conditions are met
+                return universityMatch && countryMatch && levelMatch && searchMatch;
+            });
+
+            // 3. Re-render the cards with filtered data
+            renderCards(filteredData);
+        }
+
+        /**
+         * Main function to initialize the application.
+         */
+        async function initializeApp() {
+            // 1. Add event listeners immediately
+            searchInput.addEventListener('input', filterData);
+            universityFilter.addEventListener('change', filterData);
+            countryFilter.addEventListener('change', filterData);
+            levelFilter.addEventListener('change', filterData);
+
+            // 2. Load data from Supabase (or mock data if not configured)
+            allDegreeData = await loadDegreeData();
+
+            // 3. Populate filters and render initial cards
+            if (allDegreeData.length > 0) {
+                populateFilters(allDegreeData);
+                renderCards(allDegreeData);
+            }
+            
+            // 4. Initial icon creation
+            lucide.createIcons();
+        }
+        
+        // --- INITIALIZATION ---
+        initializeApp();
+
+    </script>
+</body>
+</html>
