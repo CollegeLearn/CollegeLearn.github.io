@@ -96,24 +96,14 @@
 
     </div>
 
-    <!-- SCRIPT: Changed to type="module" to support Supabase import -->
+    <!-- SCRIPT: Now uses standard fetch for Google Apps Script -->
     <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-        // --- Supabase Credentials ---
-        const SUPABASE_URL = 'https://cdemtflgcaciedqvqivv.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZW10ZmxnY2FjaWVkcXZxaXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1MjExNDMsImV4cCI6MjA3NDA5NzE0M30.tCKoaQxrKdCprv4NkqCeG4sE8PdxZvMYx4RxoOq-mKs';
+        // --- Google Apps Script Endpoint ---
+        // REPLACE this placeholder URL with the actual URL you get after deploying Code.gs as a Web App.
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7N0UpbouSdQFkQ_pxKj3lYJ2UM5b-oTpgg49xIuRTacr_zKO9nJYfaMa-n36cJQd1/exec';
         
-        let supabase = null;
-
-        // Initialize Supabase only if the placeholders have been replaced.
-        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY_HERE') {
-            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } else {
-            console.warn("Supabase credentials are not set. Loading mock data.");
-        }
-
         // --- MOCK DATABASE (Fallback Data) ---
+        // This is kept for an immediate fallback if the Apps Script fetch fails.
         const MOCK_DEGREE_DATA = [
             {
                 University: "MIT",
@@ -146,22 +136,22 @@
                 DegreeLink: "https://ethz.ch/en/studies/master/degree-programmes/sci-nat-math/data-science.html"
             },
             // Added 10 more mock entries for better pagination testing
-            { University: "Stanford University", City: "Stanford", Country: "USA", DegreeLevel: "Master's", Degree: "M.S. Electrical Engineering", Tags: ["Hardware", "Circuits", "AI"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "Cambridge University", City: "Cambridge", Country: "UK", DegreeLevel: "Bachelor's", Degree: "B.A. History", Tags: ["History", "Ancient", "European"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "Tsinghua University", City: "Beijing", Country: "China", DegreeLevel: "PhD", Degree: "Ph.D. Environmental Science", Tags: ["Climate", "Pollution", "Earth"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "University of Tokyo", City: "Tokyo", Country: "Japan", DegreeLevel: "Bachelor's", Degree: "B.S. Physics", Tags: ["Quantum", "Relativity"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "Imperial College London", City: "London", Country: "UK", DegreeLevel: "Master's", Degree: "M.S. Financial Engineering", Tags: ["Finance", "Quant"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "Caltech", City: "Pasadena", Country: "USA", DegreeLevel: "PhD", Degree: "Ph.D. Aeronautics", Tags: ["Aerospace", "Rockets", "Space"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "University of Sydney", City: "Sydney", Country: "Australia", DegreeLevel: "Bachelor's", Degree: "B.A. Media Studies", Tags: ["Film", "Journalism"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "Technical University Munich", City: "Munich", Country: "Germany", DegreeLevel: "Master's", Degree: "M.S. Automotive Engineering", Tags: ["Cars", "Mechanical"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "Sorbonne University", City: "Paris", Country: "France", DegreeLevel: "Bachelor's", Degree: "B.A. French Literature", Tags: ["Literature", "Language"], UniversityLink: "#", DegreeLink: "#" },
-            { University: "Zhongshan University", City: "Guangzhou", Country: "China", DegreeLevel: "PhD", Degree: "Ph.D. Traditional Medicine", Tags: ["Health", "Herbal"], UniversityLink: "#", DegreeLink: "#" }
+            { University: "Stanford University", City: "Stanford", Country: "USA", DegreeLevel: "Master's", Degree: "M.S. Electrical Engineering", Tags: ["Hardware", "Circuits", "AI"], UniversityLink: "https://stanford.edu/", DegreeLink: "#" },
+            { University: "Cambridge University", City: "Cambridge", Country: "UK", DegreeLevel: "Bachelor's", Degree: "B.A. History", Tags: ["History", "Ancient", "European"], UniversityLink: "https://cam.ac.uk/", DegreeLink: "#" },
+            { University: "Tsinghua University", City: "Beijing", Country: "China", DegreeLevel: "PhD", Degree: "Ph.D. Environmental Science", Tags: ["Climate", "Pollution", "Earth"], UniversityLink: "https://tsinghua.edu.cn/", DegreeLink: "#" },
+            { University: "University of Tokyo", City: "Tokyo", Country: "Japan", DegreeLevel: "Bachelor's", Degree: "B.S. Physics", Tags: ["Quantum", "Relativity"], UniversityLink: "https://u-tokyo.ac.jp/", DegreeLink: "#" },
+            { University: "Imperial College London", City: "London", Country: "UK", DegreeLevel: "Master's", Degree: "M.S. Financial Engineering", Tags: ["Finance", "Quant"], UniversityLink: "https://imperial.ac.uk/", DegreeLink: "#" },
+            { University: "Caltech", City: "Pasadena", Country: "USA", DegreeLevel: "PhD", Degree: "Ph.D. Aeronautics", Tags: ["Aerospace", "Rockets", "Space"], UniversityLink: "https://caltech.edu/", DegreeLink: "#" },
+            { University: "University of Sydney", City: "Sydney", Country: "Australia", DegreeLevel: "Bachelor's", Degree: "B.A. Media Studies", Tags: ["Film", "Journalism"], UniversityLink: "https://sydney.edu.au/", DegreeLink: "#" },
+            { University: "Technical University Munich", City: "Munich", Country: "Germany", DegreeLevel: "Master's", Degree: "M.S. Automotive Engineering", Tags: ["Cars", "Mechanical"], UniversityLink: "https://tum.de/", DegreeLink: "#" },
+            { University: "Sorbonne University", City: "Paris", Country: "France", DegreeLevel: "Bachelor's", Degree: "B.A. French Literature", Tags: ["Literature", "Language"], UniversityLink: "https://sorbonne-universite.fr/", DegreeLink: "#" },
+            { University: "Zhongshan University", City: "Guangzhou", Country: "China", DegreeLevel: "PhD", Degree: "Ph.D. Traditional Medicine", Tags: ["Health", "Herbal"], UniversityLink: "https://sysu.edu.cn/", DegreeLink: "#" }
         ];
 
         // --- GLOBAL STATE ---
         const PAGE_SIZE = 50; // Number of results to show per batch
         let currentRenderCount = 0; // Tracks how many results have been rendered
-        let allDegreeData = []; // The complete, unfiltered data loaded from Supabase/Mock
+        let allDegreeData = []; // The complete, unfiltered data loaded from Source
         let currentFilteredData = []; // The data remaining after search and filters
         
         // --- DOM Elements ---
@@ -169,50 +159,78 @@
         const universityFilter = document.getElementById('universityFilter');
         const countryFilter = document.getElementById('countryFilter');
         const levelFilter = document.getElementById('levelFilter');
-        const resultsGrid = document.getElementById('resultsGrid'); // Changed ID from container to grid
+        const resultsGrid = document.getElementById('resultsGrid');
         const loadMoreButton = document.getElementById('loadMoreButton');
 
         // --- ASYNC DATA FETCHING ---
+        /**
+         * Fetches data from the deployed Google Apps Script or falls back to mock data.
+         */
         async function loadDegreeData() {
             resultsGrid.innerHTML = `<p class="text-gray-500 col-span-full text-center text-lg">Loading data...</p>`;
 
-            if (!supabase) {
-                // FALLBACK: Use mock data if credentials are not configured
+            if (APPS_SCRIPT_URL === 'YOUR_DEPLOYED_APPS_SCRIPT_URL_HERE' || !APPS_SCRIPT_URL.startsWith('https://')) {
                 resultsGrid.innerHTML = `
                     <div class="col-span-full text-center">
                         <p class="text-red-600 text-lg font-semibold mb-2">
                             Configuration Warning
                         </p>
                         <p class="text-gray-700 text-md">
-                            Using mock data. Please replace **'YOUR_SUPABASE_URL_HERE'** and **'YOUR_SUPABASE_ANON_KEY_HERE'** in the script to load live data.
+                            Using mock data. Please deploy the <strong>Code.gs</strong> script (provided below) and replace <strong>'YOUR_DEPLOYED_APPS_SCRIPT_URL_HERE'</strong> with your live endpoint URL to fetch sheet data.
                         </p>
                     </div>
                 `;
                 return MOCK_DEGREE_DATA;
             }
 
-            // LIVE FETCH: If supabase client is initialized
-            const { data, error } = await supabase
-                .from('Degrees') // <-- REPLACE 'degrees' WITH YOUR TABLE NAME
-                .select('*'); 
+            // LIVE FETCH: Fetch data from the deployed Apps Script Web App
+            try {
+                const response = await fetch(APPS_SCRIPT_URL);
+                if (!response.ok) {
+                    // FIX: Removed the unnecessary backslash escaping for the template literal
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Add a warning if the data is empty, but don't error out
+                if (data.length === 0) {
+                     resultsGrid.innerHTML = `
+                        <div class="col-span-full text-center">
+                            <p class="text-yellow-600 text-lg font-semibold mb-2">
+                                Warning: No Data Found
+                            </p>
+                            <p class="text-gray-700 text-md">
+                                The Apps Script returned an empty dataset. Please check your Google Sheet or deployment.
+                            </p>
+                        </div>
+                    `;
+                }
 
-            if (error) {
-                console.error('Error fetching data:', error);
-                resultsGrid.innerHTML = `<p class="text-red-500 col-span-full text-center text-lg">Error loading data. Check console for details.</p>`;
-                return []; 
+                return data;
+
+            } catch (error) {
+                console.error('Error fetching data from Apps Script:', error);
+                resultsGrid.innerHTML = `
+                    <div class="col-span-full text-center">
+                        <p class="text-red-600 text-lg font-semibold mb-2">
+                            Fetch Error
+                        </p>
+                        <p class="text-gray-700 text-md">
+                            Could not fetch data from the Apps Script URL. Falling back to mock data.
+                        </p>
+                    </div>
+                `;
+                return MOCK_DEGREE_DATA;
             }
-
-            return data;
         }
 
 
-        // --- CORE FUNCTIONS ---
+        // --- CORE FUNCTIONS (Filter/Render/Pagination logic remains the same) ---
 
         /**
          * Populates filter dropdowns with unique values from the data.
          */
         function populateFilters(data) {
-            // ... (Filter population logic remains the same)
             const universities = new Set();
             const countries = new Set();
             const levels = new Set();
@@ -417,9 +435,9 @@
             universityFilter.addEventListener('change', filterData);
             countryFilter.addEventListener('change', filterData);
             levelFilter.addEventListener('change', filterData);
-            loadMoreButton.addEventListener('click', handleLoadMore); // New: Load More button listener
+            loadMoreButton.addEventListener('click', handleLoadMore);
 
-            // 2. Load data from Supabase (or mock data if not configured)
+            // 2. Load data from Apps Script (or mock data if fetch fails)
             allDegreeData = await loadDegreeData();
 
             // 3. Populate filters and render initial cards (first page)
@@ -440,6 +458,3 @@
     </script>
 </body>
 </html>
-
-
-
