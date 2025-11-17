@@ -169,7 +169,7 @@
         async function loadDegreeData() {
             resultsGrid.innerHTML = `<p class="text-gray-500 col-span-full text-center text-lg">Loading data...</p>`;
 
-            if (APPS_SCRIPT_URL === 'YOUR_DEPLOYED_APPS_SCRIPT_URL_HERE' || !APPS_SCRIPT_URL.startsWith('https://')) {
+            if (APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbz7N0UpbouSdQFkQ_pxKj3lYJ2UM5b-oTpgg49xIuRTacr_zKO9nJYfaMa-n36cJQd1/exec' || !APPS_SCRIPT_URL.startsWith('https://')) {
                 resultsGrid.innerHTML = `
                     <div class="col-span-full text-center">
                         <p class="text-red-600 text-lg font-semibold mb-2">
@@ -458,3 +458,4 @@
     </script>
 </body>
 </html>
+
