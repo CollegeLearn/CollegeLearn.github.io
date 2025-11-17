@@ -78,8 +78,20 @@
         </div>
 
         <!-- Results Grid -->
-        <main id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Degree cards will be dynamically inserted here by JavaScript -->
+        <main>
+            <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Degree cards will be dynamically inserted here by JavaScript -->
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="mt-8 text-center">
+                <button 
+                    id="loadMoreButton" 
+                    class="hidden px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Load More Results
+                </button>
+            </div>
         </main>
 
     </div>
@@ -132,30 +144,41 @@
                 Tags: ["Data Science", "Biology", "Genetics"],
                 UniversityLink: "https://ethz.ch/en.html",
                 DegreeLink: "https://ethz.ch/en/studies/master/degree-programmes/sci-nat-math/data-science.html"
-            }
+            },
+            // Added 10 more mock entries for better pagination testing
+            { University: "Stanford University", City: "Stanford", Country: "USA", DegreeLevel: "Master's", Degree: "M.S. Electrical Engineering", Tags: ["Hardware", "Circuits", "AI"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "Cambridge University", City: "Cambridge", Country: "UK", DegreeLevel: "Bachelor's", Degree: "B.A. History", Tags: ["History", "Ancient", "European"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "Tsinghua University", City: "Beijing", Country: "China", DegreeLevel: "PhD", Degree: "Ph.D. Environmental Science", Tags: ["Climate", "Pollution", "Earth"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "University of Tokyo", City: "Tokyo", Country: "Japan", DegreeLevel: "Bachelor's", Degree: "B.S. Physics", Tags: ["Quantum", "Relativity"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "Imperial College London", City: "London", Country: "UK", DegreeLevel: "Master's", Degree: "M.S. Financial Engineering", Tags: ["Finance", "Quant"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "Caltech", City: "Pasadena", Country: "USA", DegreeLevel: "PhD", Degree: "Ph.D. Aeronautics", Tags: ["Aerospace", "Rockets", "Space"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "University of Sydney", City: "Sydney", Country: "Australia", DegreeLevel: "Bachelor's", Degree: "B.A. Media Studies", Tags: ["Film", "Journalism"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "Technical University Munich", City: "Munich", Country: "Germany", DegreeLevel: "Master's", Degree: "M.S. Automotive Engineering", Tags: ["Cars", "Mechanical"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "Sorbonne University", City: "Paris", Country: "France", DegreeLevel: "Bachelor's", Degree: "B.A. French Literature", Tags: ["Literature", "Language"], UniversityLink: "#", DegreeLink: "#" },
+            { University: "Zhongshan University", City: "Guangzhou", Country: "China", DegreeLevel: "PhD", Degree: "Ph.D. Traditional Medicine", Tags: ["Health", "Herbal"], UniversityLink: "#", DegreeLink: "#" }
         ];
 
-        // --- GLOBAL DATA STORE ---
-        // This will hold our data once fetched (or mocked)
-        let allDegreeData = [];
-
+        // --- GLOBAL STATE ---
+        const PAGE_SIZE = 50; // Number of results to show per batch
+        let currentRenderCount = 0; // Tracks how many results have been rendered
+        let allDegreeData = []; // The complete, unfiltered data loaded from Supabase/Mock
+        let currentFilteredData = []; // The data remaining after search and filters
+        
         // --- DOM Elements ---
         const searchInput = document.getElementById('searchInput');
         const universityFilter = document.getElementById('universityFilter');
         const countryFilter = document.getElementById('countryFilter');
         const levelFilter = document.getElementById('levelFilter');
-        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsGrid = document.getElementById('resultsGrid'); // Changed ID from container to grid
+        const loadMoreButton = document.getElementById('loadMoreButton');
 
         // --- ASYNC DATA FETCHING ---
-        /**
-         * Fetches data from the Supabase database or falls back to mock data.
-         */
         async function loadDegreeData() {
-            resultsContainer.innerHTML = `<p class="text-gray-500 col-span-full text-center text-lg">Loading data...</p>`;
+            resultsGrid.innerHTML = `<p class="text-gray-500 col-span-full text-center text-lg">Loading data...</p>`;
 
             if (!supabase) {
                 // FALLBACK: Use mock data if credentials are not configured
-                resultsContainer.innerHTML = `
+                resultsGrid.innerHTML = `
                     <div class="col-span-full text-center">
                         <p class="text-red-600 text-lg font-semibold mb-2">
                             Configuration Warning
@@ -170,12 +193,12 @@
 
             // LIVE FETCH: If supabase client is initialized
             const { data, error } = await supabase
-                .from('Degrees') // <-- REPLACE 'degrees' WITH YOUR TABLE NAME
+                .from('degrees') // <-- REPLACE 'degrees' WITH YOUR TABLE NAME
                 .select('*'); 
 
             if (error) {
                 console.error('Error fetching data:', error);
-                resultsContainer.innerHTML = `<p class="text-red-500 col-span-full text-center text-lg">Error loading data. Check console for details.</p>`;
+                resultsGrid.innerHTML = `<p class="text-red-500 col-span-full text-center text-lg">Error loading data. Check console for details.</p>`;
                 return []; 
             }
 
@@ -187,9 +210,9 @@
 
         /**
          * Populates filter dropdowns with unique values from the data.
-         * @param {Array} data - The fetched data from Supabase.
          */
         function populateFilters(data) {
+            // ... (Filter population logic remains the same)
             const universities = new Set();
             const countries = new Set();
             const levels = new Set();
@@ -200,13 +223,10 @@
                 if (item.DegreeLevel) levels.add(item.DegreeLevel);
             });
 
-            // Reset dropdowns before populating
             universityFilter.innerHTML = '<option value="all">All Universities</option>';
             countryFilter.innerHTML = '<option value="all">All Countries</option>';
             levelFilter.innerHTML = '<option value="all">All Levels</option>';
 
-
-            // Populate University Filter
             [...universities].sort().forEach(uni => {
                 const option = document.createElement('option');
                 option.value = uni;
@@ -214,7 +234,6 @@
                 universityFilter.appendChild(option);
             });
 
-            // Populate Country Filter
             [...countries].sort().forEach(country => {
                 const option = document.createElement('option');
                 option.value = country;
@@ -222,7 +241,6 @@
                 countryFilter.appendChild(option);
             });
 
-            // Populate Level Filter
             [...levels].sort().forEach(level => {
                 const option = document.createElement('option');
                 option.value = level;
@@ -232,29 +250,38 @@
         }
 
         /**
-         * Renders the degree cards to the page.
-         * @param {Array} data - The array of degree objects to render.
+         * Renders the degree cards to the page using incremental loading.
+         * @param {Array} data - The array of degree objects to render (which is currentFilteredData).
+         * @param {boolean} append - If true, appends new cards; otherwise, replaces content.
          */
-        function renderCards(data) {
-            resultsContainer.innerHTML = ''; // Clear previous results
+        function renderCards(data, append = false) {
+            if (!append) {
+                resultsGrid.innerHTML = '';
+            }
+
+            const start = append ? currentRenderCount : 0;
+            const end = Math.min(data.length, start + PAGE_SIZE);
+            const batchToRender = data.slice(start, end);
 
             // Check if there are no results from filtering
             if (data.length === 0 && allDegreeData.length > 0) {
-                 resultsContainer.innerHTML = `
+                resultsGrid.innerHTML = `
                     <p class="text-gray-500 col-span-full text-center text-lg">
                         No results found matching your current filters and search term.
                     </p>
                 `;
+                loadMoreButton.classList.add('hidden'); // Hide button if no results
                 return;
             }
 
-            // If allDegreeData is empty, the loadDegreeData already showed an error/warning message.
+            // If allDegreeData is empty, we rely on the error/warning from loadDegreeData
             if (data.length === 0) {
+                loadMoreButton.classList.add('hidden');
                 return;
             }
 
-            data.forEach(item => {
-                // Create the HTML for the tags
+            // Render the new batch of cards
+            batchToRender.forEach(item => {
                 let tagsHtml = '';
                 if (Array.isArray(item.Tags)) {
                     tagsHtml = item.Tags.map(tag => `
@@ -264,7 +291,6 @@
                     `).join('');
                 }
 
-                // Create the card element
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl";
                 card.innerHTML = `
@@ -314,8 +340,19 @@
                         </div>
                     </div>
                 `;
-                resultsContainer.appendChild(card);
+                resultsGrid.appendChild(card);
             });
+
+            // Update the count of rendered items
+            currentRenderCount = end;
+
+            // Manage the "Load More" button visibility
+            if (currentRenderCount < data.length) {
+                loadMoreButton.textContent = `Load More Results (${currentRenderCount} of ${data.length})`;
+                loadMoreButton.classList.remove('hidden');
+            } else {
+                loadMoreButton.classList.add('hidden');
+            }
 
             // IMPORTANT: Re-initialize icons after rendering new HTML
             lucide.createIcons();
@@ -323,6 +360,7 @@
 
         /**
          * Filters the data based on the search input and dropdown filters.
+         * Resets pagination state.
          */
         function filterData() {
             // 1. Get all filter values
@@ -331,8 +369,8 @@
             const selectedCountry = countryFilter.value;
             const selectedLevel = levelFilter.value;
 
-            // 2. Filter the data (now using 'allDegreeData')
-            const filteredData = allDegreeData.filter(item => {
+            // 2. Filter the data (allDegreeData)
+            currentFilteredData = allDegreeData.filter(item => {
                 // Check dropdown filters
                 const universityMatch = (selectedUniversity === 'all') || (item.University === selectedUniversity);
                 const countryMatch = (selectedCountry === 'all') || (item.Country === selectedCountry);
@@ -352,8 +390,22 @@
                 return universityMatch && countryMatch && levelMatch && searchMatch;
             });
 
-            // 3. Re-render the cards with filtered data
-            renderCards(filteredData);
+            // 3. Reset render count and re-render the first page
+            currentRenderCount = 0;
+            renderCards(currentFilteredData, false);
+        }
+        
+        /**
+         * Handles the Load More button click event.
+         */
+        function handleLoadMore() {
+            loadMoreButton.disabled = true;
+            loadMoreButton.textContent = 'Loading...';
+            
+            // Render the next page batch
+            renderCards(currentFilteredData, true);
+
+            loadMoreButton.disabled = false;
         }
 
         /**
@@ -365,14 +417,17 @@
             universityFilter.addEventListener('change', filterData);
             countryFilter.addEventListener('change', filterData);
             levelFilter.addEventListener('change', filterData);
+            loadMoreButton.addEventListener('click', handleLoadMore); // New: Load More button listener
 
             // 2. Load data from Supabase (or mock data if not configured)
             allDegreeData = await loadDegreeData();
 
-            // 3. Populate filters and render initial cards
+            // 3. Populate filters and render initial cards (first page)
             if (allDegreeData.length > 0) {
                 populateFilters(allDegreeData);
-                renderCards(allDegreeData);
+                // The initial filtered set is the entire dataset
+                currentFilteredData = allDegreeData; 
+                renderCards(currentFilteredData, false); // Render the first batch
             }
             
             // 4. Initial icon creation
@@ -385,5 +440,3 @@
     </script>
 </body>
 </html>
-
-
